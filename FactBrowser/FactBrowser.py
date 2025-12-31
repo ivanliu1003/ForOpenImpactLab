@@ -1,26 +1,30 @@
 import requests
-def openfile():
-    with open("TextFile1.txt","r")as file:
-        print(file.read())
-with open("TextFile1.txt","r")as f:
-    seen=set()
-    for line in f:
-        seen.add(line.strip()+'\n')
-
-
-
-    
-with open("TextFile1.txt","r+")as file:
-    for i in range(5):
+import time
+def savefile(seen):
+    try:
         data=requests.get("https://uselessfacts.jsph.pl/api/v2/facts/random")
         data=data.json()
-        
         if(data["text"] not in seen):
-            seen.add(data["text"].strip()+'\n')
+            new_fact=data["text"]
+            seen.add(data["text"].strip())
             print(data["text"])
         else:
-            print("ivan is super smart")
-            break
-    for line in seen:
-        file.write(line.strip()+'\n')
-openfile()
+            return
+        with open("TextFile1.txt","a",encoding="utf-8")as file:
+            
+            file.write(new_fact.strip()+'\n')
+    except requests.exceptions.RequestException as e:
+        print("API 請求失敗")
+        return None
+        
+def get_data():
+    with open("TextFile1.txt","r",encoding="utf-8")as f:
+        seen=set()
+        for line in f:
+            seen.add(line.strip())
+    return seen
+
+seen=get_data()
+while True:
+    time.sleep(3)
+    savefile(seen)
